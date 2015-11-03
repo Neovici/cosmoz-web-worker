@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>Cosmoz Grouped List</title>
+
+	<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+	<link rel="import" href="../cosmoz-web-worker.html">
+</head>
+<body>
+	<template is="dom-bind" id="t">
+		<cosmoz-web-worker id="worker" on-message="handleMessage">
+			<script type="text/worker">
+				onmessage = function (event) {
+					console.log('work work!', event);
+					postMessage(event.data);
+				}
+			</script>
+		</cosmoz-web-worker>
+		<div id="results">
+		</div>
+	</template>
+	<script type="text/javascript">
+/*global document, window */
+(function () {
+	"use strict";
+	window.addEventListener('WebComponentsReady', function () {
+		var t = document.getElementById('t'),
+			results = t.$.results,
+			log = function (text) {
+				var el = document.createElement('div');
+				el.innerHTML = text;
+				results.appendChild(el);
+			},
+			czWorker = document.getElementById('worker');
+		t.handleMessage = function (event) {
+			log('handling message: ' + event.detail.data.name);
+		};
+
+		log('processing "hej"');
+		czWorker.process({
+			name: 'hej'
+		});
+
+		log('processing "hej2"');
+		czWorker.process({
+			name: 'hej2'
+		});
+
+		log('processing "he3"');
+		czWorker.process({
+			name: 'he3'
+		});
+
+		log('processing "hej4"');
+		czWorker.process({
+			name: 'hej4'
+		});
+
+		log('processing "h2ej2"');
+		czWorker.process({
+			name: 'h2ej2'
+		});
+	});
+}());
+	</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<title>Cosmoz Grouped List</title>
+	<title>Cosmoz Web Worker</title>
 
 	<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 	<link rel="import" href="../cosmoz-web-worker.html">
@@ -12,11 +12,15 @@
 <body>
 	<template is="dom-bind" id="t">
 		<cosmoz-web-worker id="worker" on-message="handleMessage">
+			<script type="text/worker" src="test.js">
+				myExtraFunction('and this?');
+			</script>
 			<script type="text/worker">
 				onmessage = function (event) {
+					myExtraFunction('on message');
 					console.log('work work!', event);
 					postMessage(event.data);
-				}
+				};
 			</script>
 		</cosmoz-web-worker>
 		<div id="results">
@@ -29,45 +33,30 @@
 	window.addEventListener('WebComponentsReady', function () {
 		var t = document.getElementById('t'),
 			results = t.$.results,
-			log = function (text) {
+			log = function log(text) {
 				var el = document.createElement('div');
 				el.innerHTML = text;
 				results.appendChild(el);
 			},
-			czWorker = document.getElementById('worker');
+			czWorker = document.getElementById('worker'),
+			logProcess = function logProcess(text, callback) {
+				log('processing "' + text + '"');
+				czWorker.process({
+					name: text
+				}, callback);
+			};
+
 		t.handleMessage = function (event) {
 			log('handling message: ' + event.detail.name);
 		};
 
-		log('processing "hej"');
-		czWorker.process({
-			name: 'hej'
-		});
+		logProcess('data 1');
+		logProcess('data 2');
+		logProcess('data 3');
+		logProcess('data 4');
+		logProcess('data 5');
 
-		log('processing "hej2"');
-		czWorker.process({
-			name: 'hej2'
-		});
-
-		log('processing "he3"');
-		czWorker.process({
-			name: 'he3'
-		});
-
-		log('processing "hej4"');
-		czWorker.process({
-			name: 'hej4'
-		});
-
-		log('processing "h2ej2"');
-		czWorker.process({
-			name: 'h2ej2'
-		});
-
-		log('processing "hej324"');
-		czWorker.processWithCallback({
-			name: 'hej324'
-		}, function (response) {
+		logProcess('data 6', function (response) {
 			log('response: ' + response.name);
 		});
 	});

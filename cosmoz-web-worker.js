@@ -38,19 +38,22 @@
 		/**
 		 * The process method will relay data to the available worker thread
 		 * @param  {Mixed} data The data for the worker
+		 * @param  {Function} callback (optional) Callback to run for the response
 		 */
-		process: function (data) {
-			this._threads[this._currentThreadIndex].postMessage(data);
+		process: function (data, callback) {
+			this._workerRun += 1;
+			if (callback !== undefined) {
+				this._callbacks[this._workerRun] = callback;
+			}
+			this._threads[this._currentThreadIndex].postMessage({
+				workerRun: this._workerRun,
+				data: data
+			});
 			if (this._currentThreadIndex + 1 < this.numThreads) {
 				this._currentThreadIndex += 1;
 			} else if (this._currentThreadIndex > 0) {
 				this._currentThreadIndex  = 0;
 			}
-		},
-		processWithCallback: function (data, callback) {
-			this._workerRun += 1;
-			this._callbacks[this._workerRun] = callback;
-			this.process({ workerRun: this._workerRun, data: data });
 		},
 		ready: function () {
 			var i = 0,
@@ -71,18 +74,15 @@
 			}
 		},
 		_handleWorkerMessage: function (event) {
-			var callback,
-				data = event.data,
-				workerRun = event.data.workerRun;
-
-			if (workerRun) {
+			var data = event.data.data,
+				workerRun = event.data.workerRun,
 				callback = this._callbacks[workerRun];
-				data = data.data;
-				if (callback) {
-					callback(data);
-					delete this._callbacks[workerRun];
-				}
+
+			if (callback) {
+				callback(data);
+				delete this._callbacks[workerRun];
 			}
+
 			this.fire('message', data);
 		}
 	});

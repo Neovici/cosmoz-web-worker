@@ -14,6 +14,12 @@
 				type: Number,
 				value: 2
 			},
+			_callbacks: {
+				type: Object,
+				value: function () {
+					return {};
+				}
+			},
 			_currentThreadIndex: {
 				type: Number,
 				value: 0
@@ -23,6 +29,10 @@
 				value: function () {
 					return [];
 				}
+			},
+			_workerRun: {
+				type: Number,
+				value: 0
 			}
 		},
 		/**
@@ -36,6 +46,11 @@
 			} else if (this._currentThreadIndex > 0) {
 				this._currentThreadIndex  = 0;
 			}
+		},
+		processWithCallback: function (data, callback) {
+			this._workerRun += 1;
+			this._callbacks[this._workerRun] = callback;
+			this.process({ workerRun: this._workerRun, data: data });
 		},
 		ready: function () {
 			var i = 0,
@@ -56,7 +71,19 @@
 			}
 		},
 		_handleWorkerMessage: function (event) {
-			this.fire('message', event);
+			var callback,
+				data = event.data,
+				workerRun = event.data.workerRun;
+
+			if (workerRun) {
+				callback = this._callbacks[workerRun];
+				data = data.data;
+				if (callback) {
+					callback(data);
+					delete this._callbacks[workerRun];
+				}
+			}
+			this.fire('message', data);
 		}
 	});
 }());

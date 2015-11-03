@@ -36,7 +36,7 @@
 			},
 			czWorker = document.getElementById('worker');
 		t.handleMessage = function (event) {
-			log('handling message: ' + event.detail.data.name);
+			log('handling message: ' + event.detail.name);
 		};
 
 		log('processing "hej"');
@@ -62,6 +62,13 @@
 		log('processing "h2ej2"');
 		czWorker.process({
 			name: 'h2ej2'
+		});
+
+		log('processing "hej324"');
+		czWorker.processWithCallback({
+			name: 'hej324'
+		}, function (response) {
+			log('response: ' + response.name);
 		});
 	});
 }());

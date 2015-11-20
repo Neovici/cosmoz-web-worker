@@ -22,9 +22,9 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "^1.2.0",
-    "iron-component-page": "PolymerElements/iron-component-page#~1.0.7",
-    "iron-flex-layout": "PolymerElements/iron-flex-layout#~1.0.4",
-    "iron-list": "PolymerElements/iron-list#~1.1.4"
+    "polymer": "^1.2.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0"
   }
 }

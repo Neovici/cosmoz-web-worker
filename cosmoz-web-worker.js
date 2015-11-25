@@ -139,6 +139,8 @@
 				worker.addEventListener('message', workerMessageHandler);
 				this._threads.push(worker);
 			}
+
+			this.fire('cosmoz-web-worker-ready');
 		}
 	});
 }());

@@ -27,40 +27,39 @@
 		</div>
 	</template>
 	<script type="text/javascript">
-/*global document, window */
-(function () {
-	"use strict";
-	window.addEventListener('WebComponentsReady', function () {
-		var t = document.getElementById('t'),
-			results = t.$.results,
-			log = function log(text) {
-				var el = document.createElement('div');
-				el.innerHTML = text;
-				results.appendChild(el);
-			},
-			czWorker = document.getElementById('worker'),
-			logProcess = function logProcess(text, callback) {
-				log('processing "' + text + '"');
-				czWorker.process({
-					name: text
-				}, callback);
-			};
+		(function () {
+			'use strict';
+			window.addEventListener('WebComponentsReady', function () {
+				var t = document.getElementById('t'),
+					results = t.$.results,
+					log = function log(text) {
+						var el = document.createElement('div');
+						el.innerHTML = text;
+						results.appendChild(el);
+					},
+					czWorker = document.getElementById('worker'),
+					logProcess = function logProcess(text, callback) {
+						log('processing "' + text + '"');
+						czWorker.process({
+							name: text
+						}, callback);
+					};
 
-		t.handleMessage = function (event) {
-			log('handling message: ' + event.detail.name);
-		};
+				t.handleMessage = function (event) {
+					log('handling message: ' + event.detail.name);
+				};
 
-		logProcess('data 1');
-		logProcess('data 2');
-		logProcess('data 3');
-		logProcess('data 4');
-		logProcess('data 5');
+				logProcess('data 1');
+				logProcess('data 2');
+				logProcess('data 3');
+				logProcess('data 4');
+				logProcess('data 5');
 
-		logProcess('data 6', function (response) {
-			log('response: ' + response.name);
-		});
-	});
-}());
+				logProcess('data 6', function (response) {
+					log('response: ' + response.name);
+				});
+			});
+		}());
 	</script>
 </body>
 </html>

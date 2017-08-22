@@ -1,3 +1,3 @@
-function myExtraFunction (text) {
+function myExtraFunction(text) {
 	console.log('extra function', text);
 }

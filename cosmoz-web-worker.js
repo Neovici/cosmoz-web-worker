@@ -1,7 +1,7 @@
-/*global Blob, Polymer, Promise, Worker, window, XMLHttpRequest */
+/*global Blob, Promise, Worker */
 (function () {
 
-	"use strict";
+	'use strict';
 
 	Polymer({
 		is: 'cosmoz-web-worker',
@@ -78,7 +78,7 @@
 
 				req.open('GET', url);
 
-				req.onload = function() {
+				req.onload = function () {
 					if (req.status === 200) {
 						script.textContent = req.response + script.textContent;
 						script.removeAttribute('src');
@@ -88,8 +88,8 @@
 					}
 				};
 
-				req.onerror = function() {
-					reject(new Error("Network Error"));
+				req.onerror = function () {
+					reject(new Error('Network Error'));
 				};
 
 				req.send();
@@ -126,8 +126,10 @@
 		},
 		_startWorkers: function (workerScripts) {
 			var i = 0,
-				jsMimeType = { type: "text/javascript" },
-				workerCodeExtractor = function (oScript) { return oScript.textContent; },
+				jsMimeType = { type: 'text/javascript' },
+				workerCodeExtractor = function (oScript) {
+					return oScript.textContent;
+				},
 				workerCode = Array.prototype.map.call(workerScripts, workerCodeExtractor),
 				workerMessageHandler = this._handleWorkerMessage.bind(this),
 				blob = new Blob(workerCode, jsMimeType),

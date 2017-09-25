@@ -1,6 +1,4 @@
-/*global Blob, Promise, Worker */
 (function () {
-
 	'use strict';
 
 	Polymer({

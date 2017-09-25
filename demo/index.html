@@ -4,50 +4,57 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<title>Cosmoz Web Worker</title>
+	<title>cosmoz-web-worker</title>
 
 	<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+	<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html" />
+	<link rel="import" href="../../iron-demo-helpers/demo-snippet.html" />
+	<link rel="import" href="../../iron-flex-layout/iron-flex-layout-classes.html" />
+
 	<link rel="import" href="../cosmoz-web-worker.html">
 </head>
 <body>
-	<template is="dom-bind" id="t">
-		<cosmoz-web-worker id="worker" on-message="handleMessage">
-			<script type="text/worker" src="test.js">
-				myExtraFunction('and this?');
-			</script>
-			<script type="text/worker">
-				onmessage = function (event) {
-					myExtraFunction('on message');
-					console.log('work work!', event);
-					postMessage(event.data);
-				};
-			</script>
-		</cosmoz-web-worker>
-		<div id="results"></div>
-	</template>
-	<script type="text/javascript">
-		(function () {
-			'use strict';
-			window.addEventListener('WebComponentsReady', function () {
-				var t = document.getElementById('t'),
-					results = t.$.results,
-					log = function log(text) {
-						var el = document.createElement('div');
-						el.innerHTML = text;
-						results.appendChild(el);
-					},
-					czWorker = document.getElementById('worker'),
-					logProcess = function logProcess(text, callback) {
-						log('processing "' + text + '"');
-						czWorker.process({
-							name: text
-						}, callback);
+	<dom-bind id="t">
+		<template is="dom-bind">
+			<cosmoz-web-worker id="worker" on-message="handleMessage" on-cosmoz-web-worker-ready="onWorkerReady">
+				<script type="text/worker" src="test.js">
+					myExtraFunction('and this?');
+				</script>
+				<script type="text/worker">
+					onmessage = function (event) {
+						myExtraFunction('on message');
+						console.log('work work!', event);
+						postMessage(event.data);
 					};
-
-				t.handleMessage = function (event) {
-					log('handling message: ' + event.detail.name);
+				</script>
+			</cosmoz-web-worker>
+			<div id="results"></div>
+		</template>
+	</dom-bind>
+	<script type="text/javascript">
+		'use strict';
+		window.addEventListener('WebComponentsReady', function () {
+			var t = document.getElementById('t'),
+				results = (t = !t.set ? t.firstElementChild : t).$.results,
+				log = function log(text) {
+					var el = document.createElement('div');
+					el.innerHTML = text;
+					results.appendChild(el);
+				},
+				czWorker = document.getElementById('worker'),
+				logProcess = function logProcess(text, callback) {
+					log('processing "' + text + '"');
+					czWorker.process({
+						name: text
+					}, callback);
 				};
 
+			t.handleMessage = function (event) {
+				log('handling message: ' + event.detail.name);
+			};
+
+			t.onWorkerReady = function (){
 				logProcess('data 1');
 				logProcess('data 2');
 				logProcess('data 3');
@@ -57,8 +64,11 @@
 				logProcess('data 6', function (response) {
 					log('response: ' + response.name);
 				});
-			});
-		}());
+			};
+
+			if (czWorker._threads.length > 0){
+				t.onWorkerReady();
+			}
+		});
 	</script>
-</body>
-</html>
+</body></html>

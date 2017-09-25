@@ -37,6 +37,7 @@
 		 * The process method will relay data to the available worker thread
 		 * @param  {Mixed} data The data for the worker
 		 * @param  {Function} callback (optional) Callback to run for the response
+		 * @returns {void}
 		 */
 		process: function (data, callback) {
 			this._workerRun += 1;

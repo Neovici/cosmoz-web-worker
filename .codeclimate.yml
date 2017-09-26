@@ -24,3 +24,6 @@ ratings:
   paths:
   - "**.js"
   - "**.html"
+
+exclude_paths:
+  - "analysis.json"

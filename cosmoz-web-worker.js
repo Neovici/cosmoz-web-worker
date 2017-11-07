@@ -54,26 +54,31 @@
 				this._currentThreadIndex  = 0;
 			}
 		},
-		ready: function () {
-			var
-				ctx = this,
-				workerScripts = this._getWorkerScripts(),
+		attached: function () {
+			const workerScripts = this._getWorkerScripts(),
 				promises = this._getWorkerScriptInlinePromises(workerScripts) || [];
 
 			Promise.all(promises)
-				.catch(function (err) {
+				.catch((err) => {
 					console.warn('err', err);
 				})
-				.then(function () {
-					ctx._startWorkers(workerScripts);
+				.then(() => {
+					this._startWorkers(workerScripts);
 				});
+		},
+		detached: function () {
+			let worker = this._threads.pop();
+			while (worker) {
+				worker.terminate();
+				worker = this._threads.pop();
+			}
 		},
 		// TODO: Use HTML Imports instead?
 		_getWorkerScriptInlinePromise: function (script) {
-			var url = script.getAttribute('src');
+			const url = script.getAttribute('src');
 
 			return new Promise(function (resolve, reject) {
-				var req = new XMLHttpRequest();
+				const req = new XMLHttpRequest();
 
 				req.open('GET', url);
 
@@ -95,24 +100,16 @@
 			});
 		},
 		_getWorkerScriptInlinePromises: function (workerScripts) {
-			var
-				ctx = this,
-				promises = [];
-
-			workerScripts.forEach(function (script) {
-				if (script.hasAttribute('src')) {
-					promises.push(ctx._getWorkerScriptInlinePromise(script));
-				}
-			});
-
-			return promises;
+			return workerScripts
+				.filter(script => script.hasAttribute('src'))
+				.map(script => this._getWorkerScriptInlinePromise(script));
 		},
 		_getWorkerScripts: function () {
-			var workerScriptType = 'script[type="text/worker"]';
+			const workerScriptType = 'script[type="text/worker"]';
 			return Polymer.dom(this).querySelectorAll(workerScriptType);
 		},
 		_handleWorkerMessage: function (event) {
-			var data = event.data.data,
+			const data = event.data.data,
 				workerRun = event.data.workerRun,
 				callback = this._callbacks[workerRun];
 
@@ -124,21 +121,18 @@
 			this.fire('message', data);
 		},
 		_startWorkers: function (workerScripts) {
-			var i = 0,
-				jsMimeType = { type: 'text/javascript' },
-				workerCodeExtractor = function (oScript) {
-					return oScript.textContent;
-				},
+			const jsMimeType = { type: 'text/javascript' },
+				workerCodeExtractor = oScript => oScript.textContent,
 				workerCode = Array.prototype.map.call(workerScripts, workerCodeExtractor),
 				workerMessageHandler = this._handleWorkerMessage.bind(this),
 				blob = new Blob(workerCode, jsMimeType),
-				objectUrl = window.URL.createObjectURL(blob),
-				worker;
+				objectUrl = window.URL.createObjectURL(blob);
 
-			for (i = 0; i < this.numThreads; i += 1) {
-				worker = new Worker(objectUrl);
+			for (let i = 0; i < this.numThreads; i += 1) {
+				const worker = new Worker(objectUrl);
 				worker.addEventListener('message', workerMessageHandler);
 				this._threads.push(worker);
+				URL.revokeObjectURL(objectUrl);
 			}
 
 			this.fire('cosmoz-web-worker-ready');

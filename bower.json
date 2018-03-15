@@ -1,7 +1,7 @@
 {
 	"name": "cosmoz-web-worker",
 	"main": "cosmoz-web-worker.html",
-	"version": "0.1.4",
+	"version": "1.0.1",
 	"homepage": "https://github.com/Neovici/cosmoz-web-worker",
 	"authors": [
 		"Neovici Development"
